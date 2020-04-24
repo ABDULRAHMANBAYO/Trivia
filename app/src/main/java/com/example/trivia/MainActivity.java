@@ -1,8 +1,6 @@
 package com.example.trivia;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,13 +12,11 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.trivia.data.AnswerListAsyncResponse;
 import com.example.trivia.data.QuestionBank;
 import com.example.trivia.model.Question;
 import com.example.trivia.model.Score;
 import com.example.trivia.util.Prefs;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,10 +60,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         scoreTextView.setText(MessageFormat.format("Score:{0}", String.valueOf(score.getScore())));
         highScoreTextView.setText(MessageFormat.format("High Score:{0}", String.valueOf(prefs.getHighScore())));
+        //get previous state
+        currentQuestionIndex=prefs.getState();
         questionList = new QuestionBank().getQuestions(new AnswerListAsyncResponse() {
             @Override
             public void processFinished(ArrayList<Question> questionArrayList) {
                 questionTextView.setText(questionArrayList.get(currentQuestionIndex).getAnswer());
+                questionCounterTextView.setText(MessageFormat.format("{0} / {1}", currentQuestionIndex, questionList.size()));
 
                 Log.d("inside", "onCreate:" + questionArrayList);
 //                updateHighScore();
@@ -125,7 +124,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void updateQuestion() {
         String question = questionList.get(currentQuestionIndex).getAnswer();
         questionTextView.setText(question);
-        questionCounterTextView.setText(currentQuestionIndex + " / " + questionList.size());
+        questionCounterTextView.setText(MessageFormat.format("{0} / {1}", currentQuestionIndex, questionList.size()));
+
 
 
     }
@@ -230,7 +230,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         prefs.saveHighScore(score.getScore());
-
+        prefs.setState(currentQuestionIndex);
         super.onPause();
     }
+
+
 }
