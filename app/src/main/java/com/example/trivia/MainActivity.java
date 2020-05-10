@@ -1,6 +1,9 @@
 package com.example.trivia;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,11 +15,14 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.trivia.data.AnswerListAsyncResponse;
 import com.example.trivia.data.QuestionBank;
 import com.example.trivia.model.Question;
 import com.example.trivia.model.Score;
 import com.example.trivia.util.Prefs;
+
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView questionCounterTextView;
     private Button trueButton;
     private Button falseButton;
+    private Button shareButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
     private int currentQuestionIndex = 0;
@@ -52,16 +59,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         questionTextView = findViewById(R.id.question_textView);
         scoreTextView = findViewById(R.id.scoreBoard);
         highScoreTextView = findViewById(R.id.highScore);
+        shareButton = findViewById(R.id.shareButton);
 
         nextButton.setOnClickListener(this);
         prevButton.setOnClickListener(this);
         trueButton.setOnClickListener(this);
         falseButton.setOnClickListener(this);
+        shareButton.setOnClickListener(this);
 
         scoreTextView.setText(MessageFormat.format("Score:{0}", String.valueOf(score.getScore())));
         highScoreTextView.setText(MessageFormat.format("High Score:{0}", String.valueOf(prefs.getHighScore())));
         //get previous state
-        currentQuestionIndex=prefs.getState();
+        currentQuestionIndex = prefs.getState();
         questionList = new QuestionBank().getQuestions(new AnswerListAsyncResponse() {
             @Override
             public void processFinished(ArrayList<Question> questionArrayList) {
@@ -101,6 +110,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 checkAnswer(false);
                 updateQuestion();
                 break;
+
+            case R.id.shareButton:
+                shareDetails(String.valueOf(scoreCounter), String.valueOf(prefs.getHighScore()));
+                break;
+
         }
     }
 
@@ -125,7 +139,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String question = questionList.get(currentQuestionIndex).getAnswer();
         questionTextView.setText(question);
         questionCounterTextView.setText(MessageFormat.format("{0} / {1}", currentQuestionIndex, questionList.size()));
-
 
 
     }
@@ -224,6 +237,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void goToPreviousQuestion() {
         currentQuestionIndex = (currentQuestionIndex - 1) % questionList.size();
         updateQuestion();
+
+    }
+
+    private void shareDetails( String currentScore,String highScore) {
+//        StringBuilder stringBuilder = new StringBuilder();
+//        stringBuilder.append("My current score : " + currentScore +
+//                "\n" + "My Highest score : " +highScore);
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, "My current score : " + currentScore +
+                "\n" + "My Highest score : " + highScore);
+        intent.putExtra(Intent.EXTRA_SUBJECT, "I am Playing trivia");
+        startActivity(intent);
 
     }
 

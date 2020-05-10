@@ -13,4 +13,5 @@
     <string name="highScoreTextView">highScore:</string>
     <string name="score">score</string>
     <string name="default_score">0</string>
+    <string name="share">SHARE</string>
 </resources>
